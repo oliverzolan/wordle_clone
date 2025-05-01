@@ -1,13 +1,17 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Wordle clone
+name: Wordle CI/CD
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   test:
@@ -48,22 +52,11 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller --onefile run_game.py --name wordle
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
       with:
+        files: ./dist/wordle
+        name: Release v${{ github.run_number }}
         tag_name: v${{ github.run_number }}
-        release_name: Release v${{ github.run_number }}
         draft: false
-        prerelease: false
-    - name: Upload executable to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/wordle
-        asset_name: wordle
-        asset_content_type: application/octet-stream 
+        prerelease: false 
