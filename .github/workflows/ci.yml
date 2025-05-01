@@ -29,11 +29,6 @@ jobs:
     - name: Generate coverage report
       run: |
         coverage report -m
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: .coverage
-        fail_ci_if_error: false
 
   deploy:
     needs: test
