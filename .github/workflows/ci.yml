@@ -11,7 +11,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   test:
@@ -34,7 +33,7 @@ jobs:
       run: |
         coverage report -m
 
-  deploy:
+  build:
     needs: test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
@@ -52,11 +51,8 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller --onefile run_game.py --name wordle
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
       with:
-        files: ./dist/wordle
-        name: Release v${{ github.run_number }}
-        tag_name: v${{ github.run_number }}
-        draft: false
-        prerelease: false 
+        name: wordle-executable
+        path: dist/wordle 
