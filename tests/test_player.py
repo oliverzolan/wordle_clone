@@ -2,15 +2,20 @@ import unittest
 from wordle.player import Player
 import os
 import json
+import tempfile
 
 class TestPlayer(unittest.TestCase):
     def setUp(self):
-        self.test_stats_file = "test_player_stats.json"
+        # Create a temporary directory for test files
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_stats_file = os.path.join(self.temp_dir, "test_player_stats.json")
         self.player = Player(self.test_stats_file)
     
     def tearDown(self):
         if os.path.exists(self.test_stats_file):
             os.remove(self.test_stats_file)
+        if os.path.exists(self.temp_dir):
+            os.rmdir(self.temp_dir)
     
     def test_initial_stats(self):
         """Test initial statistics."""

@@ -31,4 +31,4 @@ class WordList:
     
     def reload_words(self):
         """Reload the word list from file."""
-        self.words = self._load_words
+        self.words = self._load_words()

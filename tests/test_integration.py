@@ -5,17 +5,21 @@ from wordle.player import Player
 from wordle.display import Display
 import os
 import json
+import tempfile
 
 class TestIntegration(unittest.TestCase):
     def setUp(self):
+        # Create a temporary directory for test files
+        self.temp_dir = tempfile.mkdtemp()
+        
         # Create a test word list file
         self.test_words = ["hello", "world", "python", "tests"]
-        self.test_word_file = "test_word_list.json"
+        self.test_word_file = os.path.join(self.temp_dir, "test_word_list.json")
         with open(self.test_word_file, 'w') as f:
             json.dump(self.test_words, f)
         
         # Create a test stats file
-        self.test_stats_file = "test_player_stats.json"
+        self.test_stats_file = os.path.join(self.temp_dir, "test_player_stats.json")
     
     def tearDown(self):
         # Clean up test files
@@ -23,6 +27,8 @@ class TestIntegration(unittest.TestCase):
             os.remove(self.test_word_file)
         if os.path.exists(self.test_stats_file):
             os.remove(self.test_stats_file)
+        if os.path.exists(self.temp_dir):
+            os.rmdir(self.temp_dir)
     
     def test_word_list_and_game_state(self):
         """Test integration between WordList and GameState."""

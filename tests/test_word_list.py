@@ -2,12 +2,16 @@ import unittest
 from wordle.word_list import WordList
 import os
 import json
+import tempfile
 
 class TestWordList(unittest.TestCase):
     def setUp(self):
+        # Create a temporary directory
+        self.temp_dir = tempfile.mkdtemp()
+        
         # Create a temporary word list file
         self.test_words = ["hello", "world", "python", "tests"]
-        self.test_file = "test_word_list.json"
+        self.test_file = os.path.join(self.temp_dir, "test_word_list.json")
         with open(self.test_file, 'w') as f:
             json.dump(self.test_words, f)
         self.word_list = WordList(self.test_file)
@@ -16,6 +20,8 @@ class TestWordList(unittest.TestCase):
         # Clean up the temporary file
         if os.path.exists(self.test_file):
             os.remove(self.test_file)
+        if os.path.exists(self.temp_dir):
+            os.rmdir(self.temp_dir)
     
     def test_load_words(self):
         """Test that words are loaded correctly from the file."""
