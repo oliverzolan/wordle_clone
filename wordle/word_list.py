@@ -1,9 +1,11 @@
 import json
 import random
-from pathlib import Path
+import os
 
 class WordList:
-    def __init__(self, word_list_path='wordle/wordle-list'):
+    def __init__(self, word_list_path=None):
+        if word_list_path is None:
+            word_list_path = os.path.join(os.path.dirname(__file__), 'wordle-list.json')
         self.word_list_path = word_list_path
         self.words = self._load_words()
     
@@ -29,4 +31,4 @@ class WordList:
     
     def reload_words(self):
         """Reload the word list from file."""
-        self.words = self._load_words() 
+        self.words = self._load_words

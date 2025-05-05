@@ -1,9 +1,10 @@
 import json
-from pathlib import Path
+import os
 
 class Player:
-    def __init__(self, stats_file='wordle/player_stats.json'):
+    def __init__(self, stats_file='wordle_clone/wordle/player_stats.json'):
         self.stats_file = stats_file
+        os.makedirs(os.path.dirname(self.stats_file), exist_ok=True)
         self.stats = self._load_stats()
     
     def _load_stats(self):
@@ -21,6 +22,7 @@ class Player:
     
     def _save_stats(self):
         """Save player statistics to file."""
+        os.makedirs(os.path.dirname(self.stats_file), exist_ok=True)
         with open(self.stats_file, 'w') as f:
             json.dump(self.stats, f)
     
