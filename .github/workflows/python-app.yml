@@ -50,9 +50,6 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install pyinstaller
-    - name: Build executable
-      run: |
-        pyinstaller --onefile run_game.py --name wordle
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
