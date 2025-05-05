@@ -25,7 +25,7 @@ def main():
         if not word_list.is_valid_word(guess):
             display.display_error("Invalid word. Please try again.")
             continue
-        
+    
         # Process guess
         result = game_state.make_guess(guess)
         
