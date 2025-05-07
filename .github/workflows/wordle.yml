@@ -51,17 +51,21 @@ jobs:
         pip install pyinstaller
     - name: Build executable
       run: pyinstaller --onefile run_game.py --name wordle
-    - name: Rename binary for OS
+    - name: Rename and upload binary
       run: |
-        if [ "${{ runner.os }}" = "Windows" ]; then
-          mv dist/wordle.exe wordle-windows.exe
-        elif [ "${{ runner.os }}" = "macOS" ]; then
-          mv dist/wordle wordle-mac
-        else
-          mv dist/wordle wordle-linux
-        fi
+        case "${{ runner.os }}" in
+          Linux)
+            mv dist/wordle wordle-linux
+            ;;
+          macOS)
+            mv dist/wordle wordle-mac
+            ;;
+          Windows)
+            mv dist/wordle.exe wordle-windows.exe
+            ;;
+        esac
       shell: bash
-    - name: Upload binary artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: wordle-${{ runner.os }}
@@ -71,10 +75,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download all binary artifacts
+    - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
         path: ./artifacts
+
+    - name: List downloaded files
+      run: find ./artifacts
 
     - name: Create release
       id: create_release
@@ -93,7 +100,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/wordle-linux/wordle-linux
+        asset_path: ./artifacts/wordle-Linux/wordle-linux
         asset_name: wordle-linux
         asset_content_type: application/octet-stream
 
@@ -103,7 +110,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/wordle-mac/wordle-mac
+        asset_path: ./artifacts/wordle-macOS/wordle-mac
         asset_name: wordle-mac
         asset_content_type: application/octet-stream
 
