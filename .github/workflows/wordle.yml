@@ -24,55 +24,59 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install coverage
     - name: Run tests
-      run: |
-        coverage run -m unittest discover tests
+      run: coverage run -m unittest discover tests
     - name: Generate coverage report
-      run: |
-        coverage report -m
+      run: coverage report -m
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         file: .coverage
         fail_ci_if_error: false
 
-  deploy:
+  build:
     needs: test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-
     - name: Build executable
-      run: |
-        pyinstaller --onefile run_game.py --name wordle
-
+      run: pyinstaller --onefile run_game.py --name wordle
     - name: Rename binary for OS
       run: |
         if [ "${{ runner.os }}" = "Windows" ]; then
-          mv dist/wordle.exe dist/wordle-windows.exe
+          mv dist/wordle.exe wordle-windows.exe
         elif [ "${{ runner.os }}" = "macOS" ]; then
-          mv dist/wordle dist/wordle-mac
+          mv dist/wordle wordle-mac
         else
-          mv dist/wordle dist/wordle-linux
+          mv dist/wordle wordle-linux
         fi
       shell: bash
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: wordle-${{ runner.os }}
+        path: wordle-*
 
-    - name: Create release (only once)
-      if: matrix.os == 'macos-latest'
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all binary artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+
+    - name: Create release
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -83,12 +87,32 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload binary to release
+    - name: Upload Linux binary
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ runner.os == 'Windows' && 'dist/wordle-windows.exe' || (runner.os == 'macOS' && 'dist/wordle-mac' || 'dist/wordle-linux') }}
-        asset_name: ${{ runner.os == 'Windows' && 'wordle-windows.exe' || (runner.os == 'macOS' && 'wordle-mac' || 'wordle-linux') }}
+        asset_path: ./artifacts/wordle-Linux/wordle-linux
+        asset_name: wordle-linux
+        asset_content_type: application/octet-stream
+
+    - name: Upload macOS binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/wordle-macOS/wordle-mac
+        asset_name: wordle-mac
+        asset_content_type: application/octet-stream
+
+    - name: Upload Windows binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/wordle-Windows/wordle-windows.exe
+        asset_name: wordle-windows.exe
         asset_content_type: application/octet-stream
