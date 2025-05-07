@@ -93,7 +93,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/wordle-linux
+        asset_path: ./artifacts/wordle-linux/wordle-linux
         asset_name: wordle-linux
         asset_content_type: application/octet-stream
 
@@ -103,7 +103,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/wordle-mac
+        asset_path: ./artifacts/wordle-mac/wordle-mac
         asset_name: wordle-mac
         asset_content_type: application/octet-stream
 
@@ -113,6 +113,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/wordle-windows.exe
+        asset_path: ./artifacts/wordle-Windows/wordle-windows.exe
         asset_name: wordle-windows.exe
         asset_content_type: application/octet-stream
